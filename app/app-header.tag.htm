@@ -1,0 +1,58 @@
+<template>
+    <h1>OpenEHR</h1>
+    <!-- <div id='format' on-tap='toggleFormat'>XML</div> -->
+    <div id='auth'>
+            <button on-tap='clear'>clear</button>
+            <input id='url' placeholder="url" />
+            <input id='user' placeholder="user" />
+            <input id='pass' placeholder="password" type='password' />
+        <!-- <button id='submit'>query</button> -->
+    </div>
+</template>
+
+
+<script>
+    class {
+        connectedCallback(){
+            inputCache(this.$$('input'));
+        }
+        clear(){
+            localStorage.clear();
+        }
+        toggleFormat(){
+            this.$('#format').innerHTML = this.$('#format').innerHTML == 'XML' ? 'JSON' : 'XML';
+        }
+        get format(){
+            return this.$('#format').innerHTML.toLowerCase();
+        }
+        set format(val){
+            this.$('#format').innerHTML = val.toUpperCase();
+        }
+    }
+</script>
+
+
+<style>
+    :host {
+        display: inline-flex;
+        justify-content: space-between;
+        font-size: 20px;
+        background: #222;
+        color: white;
+        padding: 5px;
+        font-family: Quicksand;
+    }
+    #format{
+        cursor: pointer;
+    }
+    h1 {
+        margin: 0;
+        font-size: 1.5rem;
+    }
+
+    input {
+        background: #444;
+        color: silver;
+        border: 1px solid silver;
+    }
+</style>

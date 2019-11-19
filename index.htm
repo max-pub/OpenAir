@@ -1,0 +1,61 @@
+<meta charset="utf-8">
+
+<!-- start webserver ws -->
+<!-- Set-ExecutionPolicy "Unrestricted" -Scope Process -Confirm:$false -->
+
+<script src='lib/mediator.js'></script>
+<script src='dist/app-header.tag.js'></script>
+<script src='dist/app-nav.tag.js'></script>
+<!-- <script src='dist/app-input.tag.js'></script> -->
+<script src='dist/app-output.tag.js'></script>
+
+<script src='dist/template-page.tag.js'></script>
+<script src='dist/record-page.tag.js'></script>
+<script src='dist/query-page.tag.js'></script>
+<script src='lib/hash-links.js'></script>
+
+<!-- <script src='ext/Connection.js'></script> -->
+<!-- <script src='ext/OpenEHR.js'></script> -->
+<script src='lib/lib.js'></script>
+<!-- <script src='https://cdn.jsdelivr.net/gh/max-pub/hash-router/hash.view.js'></script> -->
+<script src='ext/app-router.tag.js'></script>
+<!-- <script src='https://cdn.jsdelivr.net/gh/max-pub/app-router/app-router.tag.js'></script> -->
+<!-- <script src='https://cdn.jsdelivr.net/gh/max-pub/XML.js/dist/xml-view.tag.js'></script> -->
+
+<!-- <script src='dist/json-view.tag.js'></script> -->
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Quicksand');
+    @import url('https://fonts.googleapis.com/css?family=Source+Code+Pro&display=swap');
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        overflow: hidden;
+        margin: 0;
+        background: #333;
+        color: white;
+    }
+    main{ height: 100%; display: flex; flex-direction: column;}
+
+    app-header {height: 40px;overflow: hidden;}
+    app-nav {height: 30px;overflow: hidden;}
+    app-router {flex: 1; overflow: hidden;}
+
+
+</style>
+
+<main>
+    <app-header></app-header>
+    <app-nav></app-nav>
+    <!-- <app-input> -->
+    <app-router>
+        <template-page route='template=?(.*)'></template-page>
+        <record-page route='^ehr.*'></record-page>
+        <query-page route='query'></query-page>
+    </app-router>
+    <!-- </app-input> -->
+</main>
+<!-- <app-output></app-output> -->

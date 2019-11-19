@@ -1,0 +1,37 @@
+
+*{font-family: Quicksand;}
+
+a {
+    display: block;
+    cursor: pointer;
+
+    padding: 5px;
+    color: silver;
+    text-decoration: none;
+}
+
+a:nth-child(2n) {
+    background: #444;
+}
+
+a:hover {
+    background: #555;
+}
+
+button{
+    background: #444;
+    color: white;
+    border: 1px solid silver;
+    font-size: 15px;
+    margin: 10px;
+    /* padding: 5px; */
+}
+button:hover{
+    background: #555;
+}
+button.add::before{
+    content:'+';
+    font-size: 25px;
+    font-weight: bold;
+    margin-right: 10px;
+}

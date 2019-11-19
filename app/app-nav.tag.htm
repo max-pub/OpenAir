@@ -1,0 +1,75 @@
+<template>
+    <a href='#template'>Templates</a>
+    <a href='#ehr'>Records</a>
+    <!-- <a href='#composition'>Composition</a> -->
+    <a href='#query'>Query</a>
+</template>
+
+
+<script>
+    class {
+        connectedCallback() {
+            window.hashLinks(this.$$('a'));
+            // window.addEventListener('hashchange', e => this.highlight());
+            // this.highlight();
+
+        }
+        // highlight() {
+        //     var links = this.$$('a');
+        //     var hash = document.location.hash;
+        //     // console.log(links,hash);
+        //     for (var i = 0; i < links.length; i++) {
+        //         var href = links[i].getAttribute('href');
+        //         if (hash.startsWith(href)) links[i].classList.add('activeHash');
+        //         else links[i].classList.remove('activeHash');
+        //     }
+        // }
+    }
+</script>
+
+
+<style>
+    .active{
+        color: red;
+    }
+    :host {
+        /* background: #333; */
+        color: silver;
+        padding: 1mm;
+        font-family: Quicksand;
+        /* text-align: center; */
+    }
+
+    :host {
+        display: inline-flex;
+        justify-content: space-around;
+        font-size: 17px;
+        background: #292929;
+        color: white;
+        /* padding: 5px; */
+        font-family: Quicksand;
+    }
+
+    h3 {
+        margin-bottom: 0;
+    }
+
+    a {
+        margin-left: 10px;
+        cursor: pointer;
+        /* display: block; */
+        text-decoration: none;
+        color: white;
+    }
+
+    a:hover {
+        color: red;
+    }
+</style>
+
+
+
+<!-- <a href='#patient'>patient</a>
+<a href='#case'>case</a>
+<a href='#microbio'>micro-bio</a>
+<a href='#location'>location</a> -->

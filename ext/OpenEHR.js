@@ -112,6 +112,12 @@ export default class OpenEHR {
             ORDER BY e/time_created descending 
             LIMIT ${options.limit || 100}
             `),
+            
+        count: (options = {}) => this.query.execute(`
+            select count(distinct e)
+            from ehr e 
+            ${options.withCompositions ? 'contains composition c' : ''}
+            `),
 
 
 

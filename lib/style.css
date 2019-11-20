@@ -11,20 +11,21 @@ a {
 }
 
 a:nth-child(2n) {
-    background: #444;
+    background: #222;
 }
 
 a:hover {
     background: #555;
 }
 
-button{
+input, button{
     background: #444;
     color: white;
-    border: 1px solid silver;
+    border: 1px solid gray;
+    border: none;
     font-size: 15px;
     margin: 10px;
-    /* padding: 5px; */
+    padding: 3px;
 }
 button:hover{
     background: #555;

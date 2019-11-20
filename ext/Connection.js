@@ -155,7 +155,7 @@ export default class Connection {
     }
     async fetch() {
         if (!this._response) {
-            // console.log('DO IT 11')
+            // console.log('DO IT 11',)
             let queryString = Object.keys(this._query).map(key => key + '=' + this._query[key]).join('&');
             // if(this._debug) 
             // console.log('FETCH', this._baseURL + this._URL + '?' + queryString, this._request);

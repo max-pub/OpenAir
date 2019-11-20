@@ -5,6 +5,7 @@
 
 <script src='lib/mediator.js'></script>
 <script src='dist/app-header.tag.js'></script>
+<script src='dist/app-auth.tag.js'></script>
 <script src='dist/app-nav.tag.js'></script>
 <!-- <script src='dist/app-input.tag.js'></script> -->
 <script src='dist/app-output.tag.js'></script>
@@ -37,25 +38,48 @@
         margin: 0;
         background: #333;
         color: white;
+        box-sizing: border-box;
     }
-    main{ height: 100%; display: flex; flex-direction: column;}
 
-    app-header {height: 40px;overflow: hidden;}
-    app-nav {height: 30px;overflow: hidden;}
-    app-router {flex: 1; overflow: hidden;}
-
-
+    /* app-header {
+        height: 40px;
+        overflow: hidden;
+    } */
 </style>
 
-<main>
-    <app-header></app-header>
-    <app-nav></app-nav>
-    <!-- <app-input> -->
-    <app-router>
-        <template-page route='template=?(.*)'></template-page>
-        <record-page route='^ehr.*'></record-page>
-        <query-page route='query'></query-page>
-    </app-router>
-    <!-- </app-input> -->
-</main>
-<!-- <app-output></app-output> -->
+<app-auth>
+    <div>
+        <style>
+            main {
+                height: 100%;
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                box-sizing: border-box;
+            }
+
+
+            app-nav {
+                height: 50px;
+                overflow: hidden;
+            }
+
+            app-router {
+                flex: 1;
+                overflow: hidden;
+            }
+        </style>
+
+
+        <main>
+
+            <!-- <app-header></app-header> -->
+            <app-nav></app-nav>
+            <app-router>
+                <template-page route='template=?(.*)'></template-page>
+                <record-page route='^ehr.*'></record-page>
+                <query-page route='query'></query-page>
+            </app-router>
+        </main>
+    </div>
+</app-auth>

@@ -2,29 +2,38 @@
 document.head.insertAdjacentHTML('beforeend',`
 <template id='app-nav'>
     <style>
-    .active{
+    .active {
         color: red;
-    }
-    :host {
-        /* background: #333; */
-        color: silver;
-        padding: 1mm;
-        font-family: Quicksand;
-        /* text-align: center; */
     }
 
     :host {
-        display: inline-flex;
-        justify-content: space-around;
+        /* background: #333; */
+        color: silver;
+        /* padding: 1mm; */
+        font-family: Quicksand;
+        width: 100%;
+        /* text-align: center; */
+
         font-size: 17px;
         background: #292929;
         color: white;
         /* padding: 5px; */
         font-family: Quicksand;
+        /* background: #222; */
+        border-bottom: 1px solid gray;
+        /* background: # */
+    }
+    div{padding: 5px; font-size: 20px;;}
+    main{
+        padding: 5px;
+        display: flex;
+        justify-content: space-between;
+        background: #222;
+        /* border-bottom: 1px solid gray; */
     }
 
-    h3 {
-        margin-bottom: 0;
+    h1 {
+        margin: 0; padding: 0;
     }
 
     a {
@@ -40,10 +49,16 @@ document.head.insertAdjacentHTML('beforeend',`
     }
 </style>
     
-    <a href="#template">Templates</a>
-    <a href="#ehr">Records</a>
-    <!-- <a href='#composition'>Composition</a> -->
-    <a href="#query">Query</a>
+    <main>
+        <h1>OpenAIR</h1>
+        <div>
+            <a href="#template">Templates</a>
+            <a href="#ehr">Records</a>
+            <!-- <a href='#composition'>Composition</a> -->
+            <a href="#query">Queries</a>
+        </div>
+        <a on-tap="logout">logout</a>
+    </main>
 
 </template>
 `); 
@@ -56,11 +71,15 @@ window.customElements.define('app-nav', class extends HTMLElement {
     }
     $(q){return this.shadowRoot.querySelector(q)}
     $$(q){return this.shadowRoot.querySelectorAll(q)}
+    event(name,options){this.dispatchEvent(new CustomEvent(name, {bubbles: true, composed: true, cancelable: true, detail: options}));}
             connectedCallback() {
             window.hashLinks(this.$$('a'));
             // window.addEventListener('hashchange', e => this.highlight());
             // this.highlight();
 
+        }
+        logout(){
+            this.event('logout');
         }
         // highlight() {
         //     var links = this.$$('a');

@@ -7,18 +7,7 @@ document.head.insertAdjacentHTML('beforeend',`
 
     :host {
         /* display: block; */
-        /* height: 100%; */
-    }
-
-    main {
-        display: flex;
         height: 100%;
-    }
-
-
-
-    /* main>*{border: 1px solid silver;} */
-    #ehrs {
         width: 270px;
         /* overflow-y: scroll;
             overflow-x: hidden;
@@ -28,12 +17,21 @@ document.head.insertAdjacentHTML('beforeend',`
         display: flex;
         flex-direction: column;
     }
+    header{white-space: nowrap; background: #333;}
+    main {
+        display: flex;
+        height: 100%;
+    }
+
+#search{width: 50%;}
+
+    /* main>*{border: 1px solid silver;} */
 
     #ehrs .add {
         height: 30px;
     }
 
-    #ehrs .list {
+    #list {
         flex: 1;
         overflow-y: scroll;
         overflow-x: hidden;
@@ -45,21 +43,6 @@ document.head.insertAdjacentHTML('beforeend',`
         height: 30px;
     }
 
-    #compositions {
-        width: 270px;
-        background: #222;
-        overflow-y: scroll;
-        overflow-x: hidden;
-        scrollbar-color: #999 #666;
-        scrollbar-width: thin;
-        height: 100%;
-    }
-
-    #output {
-        flex: 1;
-        scrollbar-color: #999 #666;
-        scrollbar-width: thin;
-    }
 
     datetime {
         float: right;
@@ -77,7 +60,7 @@ document.head.insertAdjacentHTML('beforeend',`
     .ehr-id,
     .composition-id {
         font-size: 14px;
-        color: gray;
+        color: silver;
         font-family: monospace;
     }
 
@@ -85,11 +68,6 @@ document.head.insertAdjacentHTML('beforeend',`
     .active .composition-id {
         color: red;
     }
-
-    .template-id {
-        font-size: 18px;
-    }
-
 
 
     ::-webkit-scrollbar {
@@ -106,10 +84,14 @@ document.head.insertAdjacentHTML('beforeend',`
 </style>
     
     <header>
-        <input type="search"/>
+        <input id="search" type="search" placeholder="search..."/>
         <button on-tap="addEHR">add EHR</button>
     </header>
-    <app-output id="output"></app-output>
+    <div id="list">list</div>
+    <!-- <app-output id='output'></app-output> -->
+    <footer>
+foot
+    </footer>
 
 </template>
 `); 
@@ -122,6 +104,7 @@ window.customElements.define('ehr-list', class extends HTMLElement {
     }
     $(q){return this.shadowRoot.querySelector(q)}
     $$(q){return this.shadowRoot.querySelectorAll(q)}
+    event(name,options){this.dispatchEvent(new CustomEvent(name, {bubbles: true, composed: true, cancelable: true, detail: options}));}
             async addEHR() {
             console.log('add ehr');
             let ID = Math.random().toString(36).substr(2);
@@ -129,22 +112,24 @@ window.customElements.define('ehr-list', class extends HTMLElement {
             console.log('con', req);
             let res = await req.JSON();
             console.log('res:', res, JSON.stringify(res, 0, 4), 'ID', await req.ID());
-            await this.loadEHRs();
+            await this.load();
         }
         async routeChange(meta) {
-            if (meta.wakeup) this.loadEHRs();
+            if (meta.wakeup) this.load();
             console.log('qsu', meta.queryStringUpdate);
             if (meta.queryStringUpdate.ehr) this.loadCompositions(meta.queryString.ehr);
             if (meta.queryStringUpdate.composition) this.loadComposition(meta.queryString.ehr, meta.queryString.composition);
             else this.loadEHR(meta.queryString.ehr);
         }
-
+        connectedCallback(){
+            setTimeout(()=>this.load(),400);
+        }
         async load() {
-            // console.log('create',node);
+            console.log('LOAD EHRSSSS');
             // this.showLoadIndicator();
             // let list = await Mediator.EHR().aql.query('select e from ehr e order by e/time_created descending limit 100');
-            this.$('#ehrs .list').innerHTML = '';
-            let list = await Mediator.EHR().EHR.list({ withCompositions: true, limit: 300 }).rows();
+            this.$('#list').innerHTML = '';
+            let list = await Mediator.EHR().EHR.list({ withCompositions: true, limit: 400 }).rows();
             console.log('ehr-list', list);
             // list = list.json.rows;
             // console.log('list', list);
@@ -156,9 +141,11 @@ window.customElements.define('ehr-list', class extends HTMLElement {
             //             <div>${ehr[0]}</div>
             //         </div>
             //     </a>`);
+            console.log("COUNT",await Mediator.EHR().EHR.count().rows());
+            this.$('footer').innerHTML = (await Mediator.EHR().EHR.count({withCompositions:true}).rows())[0] + ' EHRs'
             for (let ehr of list)//{console.log(ehr[0])}
-                this.$('#ehrs .list').insertAdjacentHTML('beforeend', `
-                    <a href='${Mediator.param(ehr.ehr_id.value)}' >
+                this.$('#list').insertAdjacentHTML('beforeend', `
+                    <a href='#${Mediator.makeHash({ehr:ehr.ehr_id.value})}' >
                         <datetime>
                             <date>${ehr.time_created.value.substring(0, 10)}</date>
                             <time>${ehr.time_created.value.split('T')[1].substr(0, 8)}</time>
@@ -171,40 +158,6 @@ window.customElements.define('ehr-list', class extends HTMLElement {
             // select e from ehr e limit 100
         }
 
-
-        async loadCompositions(ehrID) {
-            this.$('#compositions').innerHTML = '';
-            this.$('#output').show('');
-            if (!ehrID) return;
-            let list = await Mediator.EHR().composition.list({ EHR_ID: ehrID }).rows();
-            // console.log("COMP", list);
-            if (list)
-                for (let x of list)//{console.log(ehr[0])}
-                    this.$('#compositions').insertAdjacentHTML('beforeend', `
-                    <a href='${document.location.hash.split('&')[0]}&composition=${x.uid.value}' >
-                            <div class='template-id'>${x.archetype_details.template_id.value}</div>
-                        <datetime>
-                            <date>${x.context.start_time.value.substring(0, 10)}</date>
-                            <time>${x.context.start_time.value.split('T')[1].substr(0, 8)}</time>
-                        </datetime>
-                        <div class='composition-id'>
-                            <div>${x.uid.value.split('::')[0].split('-').slice(0, 3).join('-')}</div>
-                            <div>${x.uid.value.split('::')[0].split('-').slice(3).join('-')}</div>
-                        </div>
-                    </a>`);
-            // select e from ehr e limit 100
-            console.log('eeeee', this.$$('#ehrs>a'));
-            this.$$('#ehrs>a').forEach(node => node.getAttribute('href') == `#ehr=${ehrID}` ? node.classList.add('active') : node.classList.remove('active'))
-        }
-
-        async loadComposition(ehrID, compositionID) {
-            this.$('app-output').transformation = 'methods/composition.xsl';
-            console.log('loadCompositio', ehrID, '|||', compositionID);
-            if (!ehrID) return;
-            this.$('app-output').value = Mediator.EHR().composition.get(ehrID, compositionID).accept('xml');
-            // console.log('compos',this.$$('#compositions>a'));
-            this.$$('#compositions>a').forEach(node => node.getAttribute('href') == `#ehr=${ehrID}&composition=${compositionID}` ? node.classList.add('active') : node.classList.remove('active'))
-        }
 
 
         async loadEHR(ehrID) {

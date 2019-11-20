@@ -175,9 +175,5 @@ window.customElements.define('composition-list', class extends HTMLElement {
     
     
     
-            async loadEHR(ehrID) {
-                console.log('ehrID', ehrID);
-                if (!ehrID) return;
-                this.$('app-output').value = Mediator.EHR().EHR.get(ehrID);
-            }
+
 });

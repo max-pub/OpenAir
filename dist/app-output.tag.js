@@ -58,8 +58,9 @@ document.head.insertAdjacentHTML('beforeend',`
 
     main {
         flex: 1;
+        height: 100%; overflow: scroll;
     }
-
+ /* #html{height: 100%; overflow: scroll;} */
     * {
         font-family: Quicksand;
         box-sizing: border-box;

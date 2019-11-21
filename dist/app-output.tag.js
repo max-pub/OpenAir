@@ -58,8 +58,10 @@ document.head.insertAdjacentHTML('beforeend',`
 
     main {
         flex: 1;
-        height: 100%; overflow: scroll;
+        height: 100%; 
+        overflow: hidden;
     }
+    html-view content{height: 100%; overflow-x: hidden; overflow-y: scroll; display: block;}
  /* #html{height: 100%; overflow: scroll;} */
     * {
         font-family: Quicksand;
@@ -145,7 +147,7 @@ document.head.insertAdjacentHTML('beforeend',`
                 <div class='text'></div>
             </div> -->
             <code-view id="code"></code-view>
-            <html-view id="html"></html-view>
+            <html-view id="html"><content></content></html-view>
         </main>
         <footer>
             <div>
@@ -214,7 +216,7 @@ window.customElements.define('app-output', class extends HTMLElement {
 
         showNode(id) {
             this.$$('main>[id]').forEach(node => node.hidden = true);
-            this.$('#' + id).hidden = false;
+            if(id) this.$('#' + id).hidden = false;
             return this;
         }
 
@@ -248,7 +250,7 @@ window.customElements.define('app-output', class extends HTMLElement {
             this.showNode('code');
             this._connection = this._connection.clone().accept('xml');
             await customElements.whenDefined('code-view');
-            console.log('XML', await this._connection.text());
+            // console.log('XML', await this._connection.text());
             this.$('#code').value = await this._connection.text();
             this.HTTP();
         }
@@ -260,13 +262,13 @@ window.customElements.define('app-output', class extends HTMLElement {
             this.showNode('html');
             if (this._xsl) {
                 this._connection = this._connection.clone().accept('xml');
-                this.$('#html').innerHTML = XML.transform(await this._connection.XML(), await XML.fetch(this._xsl));
+                this.$('#html content').innerHTML = XML.transform(await this._connection.XML(), await XML.fetch(this._xsl));
                 this.HTTP();
             }
-            else this.$('#html').innerHTML = 'no stylesheet given';
+            else this.$('#html  content').innerHTML = 'no stylesheet given';
         }
 
-
+        set HTML(p){this.$('#html-view').innerHTML = '';}
 
 
         set value(p) { this.show(p) }
@@ -281,7 +283,7 @@ window.customElements.define('app-output', class extends HTMLElement {
         }
 
 
-
+        clear(){this.showNode('');}
 
 
 

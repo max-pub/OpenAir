@@ -17,13 +17,18 @@ document.head.insertAdjacentHTML('beforeend',`
         display: flex;
         flex-direction: column;
     }
-    header{white-space: nowrap; background: #333;}
-    main {
-        display: flex;
-        height: 100%;
+
+    header,
+    footer {
+        white-space: nowrap;
+        background: #292929;
     }
 
-#search{width: 50%;}
+
+
+    #search {
+        width: 50%;
+    }
 
     /* main>*{border: 1px solid silver;} */
 
@@ -90,7 +95,7 @@ document.head.insertAdjacentHTML('beforeend',`
     <div id="list">list</div>
     <!-- <app-output id='output'></app-output> -->
     <footer>
-foot
+        foot
     </footer>
 
 </template>
@@ -114,23 +119,28 @@ window.customElements.define('ehr-list', class extends HTMLElement {
             console.log('res:', res, JSON.stringify(res, 0, 4), 'ID', await req.ID());
             await this.load();
         }
-        async routeChange(meta) {
-            if (meta.wakeup) this.load();
-            console.log('qsu', meta.queryStringUpdate);
-            if (meta.queryStringUpdate.ehr) this.loadCompositions(meta.queryString.ehr);
-            if (meta.queryStringUpdate.composition) this.loadComposition(meta.queryString.ehr, meta.queryString.composition);
-            else this.loadEHR(meta.queryString.ehr);
-        }
-        connectedCallback(){
-            setTimeout(()=>this.load(),400);
+        // async routeChange(meta) {
+        //     if (meta.wakeup) this.load();
+        //     console.log('qsu', meta.queryStringUpdate);
+        //     if (meta.queryStringUpdate.ehr) this.loadCompositions(meta.queryString.ehr);
+        //     if (meta.queryStringUpdate.composition) this.loadComposition(meta.queryString.ehr, meta.queryString.composition);
+        //     else this.loadEHR(meta.queryString.ehr);
+        // }
+        connectedCallback() {
+            // setTimeout(()=>this.load(),400);
+            window.addEventListener('load', ()=>this.load());
+            window.addEventListener('route-change', e => {
+                if (e.detail.now.ehr===undefined)
+                    this.load()
+            });
         }
         async load() {
-            console.log('LOAD EHRSSSS');
+            // console.log('LOAD EHRSSSS');
             // this.showLoadIndicator();
             // let list = await Mediator.EHR().aql.query('select e from ehr e order by e/time_created descending limit 100');
             this.$('#list').innerHTML = '';
             let list = await Mediator.EHR().EHR.list({ withCompositions: true, limit: 400 }).rows();
-            console.log('ehr-list', list);
+            // console.log('ehr-list', list);
             // list = list.json.rows;
             // console.log('list', list);
             // for (let ehr of list.rows)//{console.log(ehr[0])}
@@ -141,11 +151,11 @@ window.customElements.define('ehr-list', class extends HTMLElement {
             //             <div>${ehr[0]}</div>
             //         </div>
             //     </a>`);
-            console.log("COUNT",await Mediator.EHR().EHR.count().rows());
-            this.$('footer').innerHTML = (await Mediator.EHR().EHR.count({withCompositions:true}).rows())[0] + ' EHRs'
+            // console.log("COUNT", await Mediator.EHR().EHR.count().rows());
+            this.$('footer').innerHTML = (await Mediator.EHR().EHR.count({ withCompositions: true }).rows())[0] + ' EHRs'
             for (let ehr of list)//{console.log(ehr[0])}
                 this.$('#list').insertAdjacentHTML('beforeend', `
-                    <a href='#${Mediator.makeHash({ehr:ehr.ehr_id.value})}' >
+                    <a href='#ehr=${ehr.ehr_id.value}' >
                         <datetime>
                             <date>${ehr.time_created.value.substring(0, 10)}</date>
                             <time>${ehr.time_created.value.split('T')[1].substr(0, 8)}</time>
@@ -156,6 +166,8 @@ window.customElements.define('ehr-list', class extends HTMLElement {
                         </div>
                     </a>`);
             // select e from ehr e limit 100
+            window.hashLinks(this.$$('#list a'));
+
         }
 
 

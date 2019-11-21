@@ -90,7 +90,11 @@ window.customElements.define('app-auth', class extends HTMLElement {
             connectedCallback() {
             if(localStorage.pass) this.show('main');
             else this.show('auth');
-            this.$('#main').appendChild(this.children[0]);
+            window.addEventListener('load',()=>{
+                // console.log('auth children',this.children);
+                this.$('#main').appendChild(this.children[0]);
+
+            })
             inputCache(this.$$('#url'));
             inputCache(this.$$('#user'));
             // console.log('FIRST', this.children[0]);
@@ -102,7 +106,7 @@ window.customElements.define('app-auth', class extends HTMLElement {
             this.show('main');
         }
         show(id) {
-            console.log('show',id);
+            // console.log('show',id);
             this.$$('[show]').forEach(node => node.hidden = true);
             if(id) this.$('#' + id).hidden = false;
         }

@@ -1,171 +1,184 @@
 <template>
-        <header>
-            <input type='search' />
-            <button on-tap='addEHR'>add Comp</button>
-        </header>
-        <div id='list'>list</div>
-        <!-- <app-output id='output'></app-output> -->
-        <footer>
-    foot
-        </footer>
-    </template>
-    
-    
-    
-    <script>
-        class {
-            async addEHR() {
-                console.log('add ehr');
-                let ID = Math.random().toString(36).substr(2);
-                let req = Mediator.EHR().ehr.add({ ID });
-                console.log('con', req);
-                let res = await req.JSON();
-                console.log('res:', res, JSON.stringify(res, 0, 4), 'ID', await req.ID());
-                await this.load();
-            }
-            async routeChange(meta) {
-                if (meta.wakeup) this.load();
-                console.log('qsu', meta.queryStringUpdate);
-                if (meta.queryStringUpdate.ehr) this.loadCompositions(meta.queryString.ehr);
-                if (meta.queryStringUpdate.composition) this.loadComposition(meta.queryString.ehr, meta.queryString.composition);
-                else this.loadEHR(meta.queryString.ehr);
-            }
-            connectedCallback(){
-                setTimeout(()=>this.load(),400);
-            }
-            async load() {
-                console.log('LOAD EHRSSSS');
-                // this.showLoadIndicator();
-                // let list = await Mediator.EHR().aql.query('select e from ehr e order by e/time_created descending limit 100');
-                this.$('#list').innerHTML = '';
-                let list = await Mediator.EHR().EHR.list({ withCompositions: true, limit: 300 }).rows();
-                console.log('ehr-list', list);
-                // list = list.json.rows;
-                // console.log('list', list);
-                // for (let ehr of list.rows)//{console.log(ehr[0])}
-                //     this.$('#ehrs .list').insertAdjacentHTML('beforeend', `
-                //     <a href='${Mediator.param(ehr[0])}' >
-    
-                //         <div class='ehr-id'>
-                //             <div>${ehr[0]}</div>
-                //         </div>
-                //     </a>`);
-                for (let ehr of list)//{console.log(ehr[0])}
-                    this.$('#list').insertAdjacentHTML('beforeend', `
-                        <a href='${Mediator.param(ehr.ehr_id.value)}' >
-                            <datetime>
-                                <date>${ehr.time_created.value.substring(0, 10)}</date>
-                                <time>${ehr.time_created.value.split('T')[1].substr(0, 8)}</time>
-                            </datetime>
-                            <div class='ehr-id'>
-                                <div>${ehr.ehr_id.value.split('-').slice(0, 3).join('-')}</div>
-                                <div>${ehr.ehr_id.value.split('-').slice(3).join('-')}</div>
-                            </div>
-                        </a>`);
-                // select e from ehr e limit 100
-            }
-    
-    
-    
+    <header>
+        <input type='search' placeholder="search..."/>
+        <button on-tap='addEHR'>add Comp</button>
+    </header>
+    <div id='list'>list</div>
+    <footer>footer</footer>
+</template>
 
+
+
+<script>
+    class {
+        connectedCallback() {
+            // console.log('COMPO LIST',this.load);
+            // setTimeout(() => this.load(), 400);
+            // document.addEventListener('load', ()=>{console.log("WINDOW DONE"); this.load()});
+            // this.load();
+
+            window.addEventListener('route-change', e => {
+                if (e.detail.new.includes('ehr'))
+                    this.load()
+            });
         }
-    </script>
-    
-    <style>
-        @import url('lib/style.css');
-    
-    
-        :host {
-            /* display: block; */
-            /* height: 100%; */
+
+
+
+        async addEHR() {
+            console.log('add ehr');
+            let ID = Math.random().toString(36).substr(2);
+            let req = Mediator.EHR().ehr.add({ ID });
+            console.log('con', req);
+            let res = await req.JSON();
+            console.log('res:', res, JSON.stringify(res, 0, 4), 'ID', await req.ID());
+            await this.load();
         }
-    
-        main {
-            display: flex;
-            height: 100%;
+        // async routeChange(meta) {
+        //     if (meta.wakeup) this.load();
+        //     console.log('qsu', meta.queryStringUpdate);
+        //     if (meta.queryStringUpdate.ehr) this.loadCompositions(meta.queryString.ehr);
+        //     if (meta.queryStringUpdate.composition) this.loadComposition(meta.queryString.ehr, meta.queryString.composition);
+        //     else this.loadEHR(meta.queryString.ehr);
+        // }
+
+        async load(EHR_ID) {
+            if (!EHR_ID) EHR_ID = HASHROUTE.now.ehr;
+            console.log("LOAD COMPOSITIONS FOR ", EHR_ID);
+            if (!EHR_ID) return this.$('#list').innerHTML = '';
+            let list = await Mediator.EHR().composition.list({ EHR_ID: EHR_ID }).rows();
+            this.$('#list').innerHTML = '';
+            // console.log("COMP", list);
+            if (list)
+                for (let x of list)//{console.log(ehr[0])}
+                    this.$('#list').insertAdjacentHTML('beforeend', `
+                <a href='${document.location.hash.split('&')[0]}&composition=${x.uid.value}' >
+                        <div class='template-id'>${x.archetype_details.template_id.value}</div>
+                    <datetime>
+                        <date>${x.context.start_time.value.substring(0, 10)}</date>
+                        <time>${x.context.start_time.value.split('T')[1].substr(0, 8)}</time>
+                    </datetime>
+                    <div class='composition-id'>
+                        <div>${x.uid.value.split('::')[0].split('-').slice(0, 3).join('-')}</div>
+                        <div>${x.uid.value.split('::')[0].split('-').slice(3).join('-')}</div>
+                    </div>
+                </a>`);
+            // select e from ehr e limit 100
+            // console.log('eeeee', this.$$('#ehrs>a'));
+            window.hashLinks(this.$$('#list a'));
+            // this.$$('#ehrs>a').forEach(node => node.getAttribute('href') == `#ehr=${ehrID}` ? node.classList.add('active') : node.classList.remove('active'))
         }
-    
-    
-    
-        /* main>*{border: 1px solid silver;} */
-        #ehrs {
-            width: 270px;
-            /* overflow-y: scroll;
+
+
+
+
+    }
+</script>
+
+<style>
+    @import url('lib/style.css');
+
+
+    :host {
+        /* display: block; */
+        height: 100%;
+        width: 270px;
+        /* overflow-y: scroll;
+            overflow-x: hidden;
+            scrollbar-color: #999 #666;
+            scrollbar-width: thin; */
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    header,
+    footer {
+        white-space: nowrap;
+        background: #292929;
+    }
+    .template-id{font-size: 18px; color: white;}
+
+    /* main>*{border: 1px solid silver;} */
+    #ehrs {
+        width: 270px;
+        /* overflow-y: scroll;
                 overflow-x: hidden;
                 scrollbar-color: #999 #666;
                 scrollbar-width: thin; */
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-    
-        #ehrs .add {
-            height: 30px;
-        }
-    
-        #ehrs .list {
-            flex: 1;
-            overflow-y: scroll;
-            overflow-x: hidden;
-            scrollbar-color: #999 #666;
-            scrollbar-width: thin;
-        }
-    
-        #ehrs .format {
-            height: 30px;
-        }
-    
-        #compositions {
-            width: 270px;
-            background: #222;
-            overflow-y: scroll;
-            overflow-x: hidden;
-            scrollbar-color: #999 #666;
-            scrollbar-width: thin;
-            height: 100%;
-        }
-    
-        #output {
-            flex: 1;
-            scrollbar-color: #999 #666;
-            scrollbar-width: thin;
-        }
-    
-        datetime {
-            float: right;
-            color: gray;
-        }
-    
-        date,
-        time {
-            display: block;
-            text-align: right;
-            font-family: monospace;
-            font-size: 14px;
-        }
-    
-        .ehr-id,
-        .composition-id {
-            font-size: 14px;
-            color: silver;
-            font-family: monospace;
-        }
-    
-        .active .ehr-id,
-        .active .composition-id {
-            color: red;
-        }
-    
-    
-        ::-webkit-scrollbar {
-            width: 10px;
-        }
-    
-        ::-webkit-scrollbar-track {
-            background: #666;
-        }
-    
-        ::-webkit-scrollbar-thumb {
-            background: #999;
-        }
-    </style>
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    #ehrs .add {
+        height: 30px;
+    }
+
+    #list {
+        flex: 1;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        scrollbar-color: #999 #666;
+        scrollbar-width: thin;
+    }
+
+    #ehrs .format {
+        height: 30px;
+    }
+
+    #compositions {
+        width: 270px;
+        background: #222;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        scrollbar-color: #999 #666;
+        scrollbar-width: thin;
+        height: 100%;
+    }
+
+    #output {
+        flex: 1;
+        scrollbar-color: #999 #666;
+        scrollbar-width: thin;
+    }
+
+    datetime {
+        float: right;
+        color: gray;
+    }
+
+    date,
+    time {
+        display: block;
+        text-align: right;
+        font-family: monospace;
+        font-size: 14px;
+    }
+
+    .ehr-id,
+    .composition-id {
+        font-size: 14px;
+        color: silver;
+        font-family: monospace;
+    }
+
+    .active .ehr-id,
+    .active .composition-id {
+        color: red;
+    }
+
+
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #666;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #999;
+    }
+</style>

@@ -1,30 +1,35 @@
 <template>
     <main>
         <ehr-list></ehr-list>
+        <composition-list></composition-list>
         <!-- <div id='ehrs'>
             <div class='add' on-tap='addEHR'>add EHR</div>
             <div class='list'></div>
             <div class='format'>HTML XML JSON</div>
         </div> -->
-        <div id='compositions'>
+        <!-- <div id='compositions'>
             <header>
                 <upload-button id='upload'></upload-button>
             </header>
             <div class='list'></div>
-        </div>
-        <app-output id='output'></app-output>
+        </div> -->
+        <!-- <app-output id='output'></app-output> -->
+        <record-view></record-view>
     </main>
 </template>
 <script>
     class {
         async connectedCallback() {
             await import('../dist/ehr-list.tag.js');
+            await import('../dist/composition-list.tag.js');
+            await import('../dist/record-view.tag.js');
             await import('../dist/upload-button.tag.js');
             await customElements.whenDefined('upload-button');
             await customElements.whenDefined('app-output');
-            this.$('#output').addEventListener('save', e => this.save(e));
-            this.$('#output').addEventListener('delete', e => this.delete(e));
-            this.$('#upload').addEventListener('file', e => this.uploadComposition(e));
+            await customElements.whenDefined('composition-list');
+            this.$('record-view').addEventListener('save', e => this.save(e));
+            this.$('record-view').addEventListener('delete', e => this.delete(e));
+            // this.$('#upload').addEventListener('file', e => this.uploadComposition(e));
             // this.$('upload-button').onSelect = f=>this.addComposition(f);
         }
         async save(event) {
@@ -56,7 +61,8 @@
             console.log("SAVE code? ", await result.code());
             console.log('new compo', newComposition);
             console.log('new compo');
-            this.loadCompositions(Mediator.getHash().ehr);
+            // this.loadCompositions(Mediator.getHash().ehr);
+            this.$('composition-list').load();
             Mediator.setHash({ composition: newCompositionUID });
         }
 
@@ -65,7 +71,8 @@
             // console.log('delete now',event);return;
             let result = await Mediator.EHR().composition.delete(Mediator.getHash().ehr, Mediator.getHash().composition);
             console.log("REMOVE? ", await result.code());
-            this.loadCompositions(Mediator.getHash().ehr);
+            // this.loadCompositions(Mediator.getHash().ehr);
+            this.$('composition-list').load();
         }
 
         async addEHR() {
@@ -77,13 +84,13 @@
             console.log('res:', res, JSON.stringify(res, 0, 4), 'ID', await req.ID());
             await this.loadEHRs();
         }
-        async routeChange(meta) {
-            // if (meta.wakeup) this.loadEHRs();
-            console.log('qsu', meta.queryStringUpdate);
-            if (meta.queryStringUpdate.ehr) this.loadCompositions(meta.queryString.ehr);
-            if (meta.queryStringUpdate.composition) this.loadComposition(meta.queryString.ehr, meta.queryString.composition);
-            else this.loadEHR(meta.queryString.ehr);
-        }
+        // async routeChange(meta) {
+        //     // if (meta.wakeup) this.loadEHRs();
+        //     console.log('qsu', meta.queryStringUpdate);
+        //     if (meta.queryStringUpdate.ehr) this.loadCompositions(meta.queryString.ehr);
+        //     if (meta.queryStringUpdate.composition) this.loadComposition(meta.queryString.ehr, meta.queryString.composition);
+        //     else this.loadEHR(meta.queryString.ehr);
+        // }
 
         async uploadComposition(event) {
             console.log('add compo', event.detail.file);
@@ -135,31 +142,31 @@
         // }
 
 
-        async loadCompositions(ehrID) {
-            this.$('#compositions .list').innerHTML = '';
-            this.$('#output').show('');
-            if (!ehrID) return;
-            let list = await Mediator.EHR().composition.list({ EHR_ID: ehrID }).rows();
-            // console.log("COMP", list);
-            if (list)
-                for (let x of list)//{console.log(ehr[0])}
-                    this.$('#compositions .list').insertAdjacentHTML('beforeend', `
-                <a href='${document.location.hash.split('&')[0]}&composition=${x.uid.value}' >
-                        <div class='template-id'>${x.archetype_details.template_id.value}</div>
-                    <datetime>
-                        <date>${x.context.start_time.value.substring(0, 10)}</date>
-                        <time>${x.context.start_time.value.split('T')[1].substr(0, 8)}</time>
-                    </datetime>
-                    <div class='composition-id'>
-                        <div>${x.uid.value.split('::')[0].split('-').slice(0, 3).join('-')}</div>
-                        <div>${x.uid.value.split('::')[0].split('-').slice(3).join('-')}</div>
-                    </div>
-                </a>`);
-            // select e from ehr e limit 100
-            console.log('eeeee', this.$$('#ehrs>a'));
-            window.hashLinks(this.$$('#compositions .list a'));
-            // this.$$('#ehrs>a').forEach(node => node.getAttribute('href') == `#ehr=${ehrID}` ? node.classList.add('active') : node.classList.remove('active'))
-        }
+        // async loadCompositions(ehrID) {
+        //     this.$('#compositions .list').innerHTML = '';
+        //     this.$('#output').show('');
+        //     if (!ehrID) return;
+        //     let list = await Mediator.EHR().composition.list({ EHR_ID: ehrID }).rows();
+        //     // console.log("COMP", list);
+        //     if (list)
+        //         for (let x of list)//{console.log(ehr[0])}
+        //             this.$('#compositions .list').insertAdjacentHTML('beforeend', `
+        //         <a href='${document.location.hash.split('&')[0]}&composition=${x.uid.value}' >
+        //                 <div class='template-id'>${x.archetype_details.template_id.value}</div>
+        //             <datetime>
+        //                 <date>${x.context.start_time.value.substring(0, 10)}</date>
+        //                 <time>${x.context.start_time.value.split('T')[1].substr(0, 8)}</time>
+        //             </datetime>
+        //             <div class='composition-id'>
+        //                 <div>${x.uid.value.split('::')[0].split('-').slice(0, 3).join('-')}</div>
+        //                 <div>${x.uid.value.split('::')[0].split('-').slice(3).join('-')}</div>
+        //             </div>
+        //         </a>`);
+        //     // select e from ehr e limit 100
+        //     console.log('eeeee', this.$$('#ehrs>a'));
+        //     window.hashLinks(this.$$('#compositions .list a'));
+        //     // this.$$('#ehrs>a').forEach(node => node.getAttribute('href') == `#ehr=${ehrID}` ? node.classList.add('active') : node.classList.remove('active'))
+        // }
 
         async loadComposition(ehrID, compositionID) {
             this.$('app-output').transformation = 'methods/composition.xsl';
@@ -233,7 +240,7 @@
         height: 100%;
     }
 
-    #output {
+    record-view {
         height: 100%;
         overflow: hidden;
         flex: 1;

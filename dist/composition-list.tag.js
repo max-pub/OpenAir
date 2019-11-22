@@ -132,7 +132,7 @@ window.customElements.define('composition-list', class extends HTMLElement {
             // console.log('COMPO LIST',this.load);
             // setTimeout(() => this.load(), 400);
             // document.addEventListener('load', ()=>{console.log("WINDOW DONE"); this.load()});
-            // this.load();
+            this.load();
 
             window.addEventListener('route-change', e => {
                 if (e.detail.new.includes('ehr'))

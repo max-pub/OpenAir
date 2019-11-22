@@ -150,6 +150,13 @@ window.customElements.define('record-page', class extends HTMLElement {
             // this.$('#upload').addEventListener('file', e => this.uploadComposition(e));
             // this.$('upload-button').onSelect = f=>this.addComposition(f);
         }
+
+        parents(node){
+            let out = [];
+            while(node=node.parentNode)
+                out.push(node);
+            return out;
+        }
         async save(event) {
             console.log('save now', event);
             let root = event.detail.DOM;
@@ -161,6 +168,17 @@ window.customElements.define('record-page', class extends HTMLElement {
             // console.log('compositon', composition);
             // // let root = this.$('#html');
             // // let tables = root.querySelectorAll('table[id]');
+            let SAVE = {};
+            for(let input of root.querySelectorAll('input[archetype_node_id]') ){
+                console.log(input,this.parents(input))
+                let ids = this.parents(input).filter(node=>node.hasAttribute && node.hasAttribute('archetype_node_id')).map(node=>node.getAttribute('archetype_node_id')).reverse();
+                ids.push(input.getAttribute('archetype_node_id'));
+                SAVE[ids.join('//')] = input.value;
+                console.log(input,ids.join('//'))
+            }
+            console.log('SAVE',SAVE);
+            return;
+
             for (let table of root.querySelectorAll('table[id]')) {
                 let content = composition.querySelector(`[archetype_node_id="${table.id}"]`);
                 // console.log('table', table, content);
@@ -172,6 +190,7 @@ window.customElements.define('record-page', class extends HTMLElement {
                 }
 
             }
+
             let result = await Mediator.EHR().composition.set(Mediator.getHash().ehr, Mediator.getHash().composition, XML.stringify(composition));
             // this.value = result;
             let newComposition = await result.XML();
